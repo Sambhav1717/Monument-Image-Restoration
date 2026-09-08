@@ -4,7 +4,6 @@ import numpy as np
 from PIL import Image, ImageFilter
 from scipy.ndimage import label
 from huggingface_hub import hf_hub_download
-from pyngrok import ngrok
 from model.networks import Generator
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -163,11 +162,7 @@ with gr.Blocks(title="Monument Image Restoration") as demo:
 
 if __name__ == "__main__":
     # Configure ngrok
-    ngrok.set_auth_token("3J3CJQErl6OWrWb6x6W4cImIxYU_2JYdakBP73RCTZFpwSrKw")
-    ngrok.kill()
     
     # Establish persistent tunnel
-    public_url = ngrok.connect(7860, domain="throttle-nature-buffing.ngrok-free.dev")
-    print(f"\n🚀 Permanent Live URL: {public_url}\n")
     
     demo.launch(server_name="0.0.0.0", server_port=7860, share=False)

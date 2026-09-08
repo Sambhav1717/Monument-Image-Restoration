@@ -25,3 +25,6 @@ tb_logs/
 *.ipynb
 .gradio/
 *.log
+run_public.py
+public_run.log
+*.log

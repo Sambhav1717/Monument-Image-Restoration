@@ -2,8 +2,8 @@ torch
 torchvision
 numpy
 pillow
-streamlit
-streamlit-drawable-canvas-fix
 huggingface_hub
 pyyaml
 scipy
+gradio
+pyngrok
