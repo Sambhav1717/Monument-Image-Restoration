@@ -9,7 +9,7 @@ from model.networks import Generator
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 CHECKPOINT = hf_hub_download(
-    repo_id="amanicorn/monument-deepfillv2",
+    repo_id="sambhav1717/monument-deepfillv2",
     filename="states.pth",
     repo_type="model"
 )
