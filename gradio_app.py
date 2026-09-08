@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image, ImageFilter
 from scipy.ndimage import label
 from huggingface_hub import hf_hub_download
+from pyngrok import ngrok
 from model.networks import Generator
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -67,7 +68,6 @@ def restore_monument(editor_data):
     if full_mask_np.sum() == 0:
         return None, None, "No brush strokes detected."
 
-    # Identify distinct disconnected painted regions
     labeled_mask, num_features = label(full_mask_np > 0)
     current_image = orig_rgb.copy()
 
@@ -81,7 +81,6 @@ def restore_monument(editor_data):
         bbox_w = max_x - min_x + 1
         bbox_h = max_y - min_y + 1
 
-        # Case 1: Damage fits in 256x256 window -> 1:1 pixel crop with native sharpness
         if bbox_w <= 256 and bbox_h <= 256 and orig_w >= 256 and orig_h >= 256:
             center_x = (min_x + max_x) // 2
             center_y = (min_y + max_y) // 2
@@ -96,7 +95,6 @@ def restore_monument(editor_data):
 
             restored_patch = run_deepfill_patch(img_crop, mask_crop)
 
-            # Paste back seamlessly
             img_arr = np.array(current_image)
             crop_arr = img_arr[crop_y1:crop_y2, crop_x1:crop_x2]
             m3 = np.expand_dims(mask_crop, axis=2)
@@ -105,7 +103,6 @@ def restore_monument(editor_data):
             img_arr[crop_y1:crop_y2, crop_x1:crop_x2] = blended_crop
             current_image = Image.fromarray(img_arr)
 
-        # Case 2: Damage is larger than 256px -> Local bounding box resize & seamless blend
         else:
             pad = 20
             crop_x1 = max(0, min_x - pad)
@@ -165,4 +162,12 @@ with gr.Blocks(title="Monument Image Restoration") as demo:
     )
 
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860, share=True)
+    # Configure ngrok
+    ngrok.set_auth_token("3J3CJQErl6OWrWb6x6W4cImIxYU_2JYdakBP73RCTZFpwSrKw")
+    ngrok.kill()
+    
+    # Establish persistent tunnel
+    public_url = ngrok.connect(7860, domain="throttle-nature-buffing.ngrok-free.dev")
+    print(f"\n🚀 Permanent Live URL: {public_url}\n")
+    
+    demo.launch(server_name="0.0.0.0", server_port=7860, share=False)
